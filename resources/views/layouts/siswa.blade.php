@@ -128,6 +128,29 @@
 
             </a>
 
+            <a href="{{ route('siswa.rekap') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition duration-200
+                {{ request()->routeIs('siswa.rekap')
+                    ? 'bg-white text-blue-700 font-semibold shadow-lg'
+                    : 'hover:bg-white/20 text-white' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 17v-6m4 6V7m4 10v-3M5 21h14"/>
+
+                </svg>
+
+                Rekap Saya
+
+            </a>
+
             <a href="{{ route('siswa.qr') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl transition duration-200
                 {{ request()->routeIs('siswa.qr')

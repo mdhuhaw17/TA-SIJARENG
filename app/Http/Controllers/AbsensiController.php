@@ -41,50 +41,100 @@ class AbsensiController extends Controller
             'qr_code' => 'required'
         ]);
 
-        // FORMAT QR
-        // contoh: 1-Nama User
-
-        $explode = explode('-', $request->qr_code);
-
-        $userId = $explode[0] ?? null;
+        // QR code format: "id-nama", ambil bagian ID saja
+        $qrRaw  = trim($request->qr_code);
+        $userId = explode('-', $qrRaw)[0];
 
         $user = User::find($userId);
 
         if (!$user) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'User tidak ditemukan'
+                'message' => 'QR Code tidak valid atau user tidak ditemukan'
             ]);
         }
 
-        // CHECK ABSEN HARI INI
         $cek = Absensi::where('user_id', $user->id)
             ->whereDate('tanggal', Carbon::today())
             ->first();
 
         if ($cek) {
-
             return response()->json([
                 'success' => false,
                 'message' => $user->name . ' sudah absen hari ini'
             ]);
         }
 
-        // SIMPAN ABSENSI
         Absensi::create([
             'user_id' => $user->id,
             'tanggal' => Carbon::today(),
-            'status' => 'hadir'
+            'status'  => 'hadir'
         ]);
 
         return response()->json([
             'success' => true,
             'message' => $user->name . ' berhasil absen',
-            'user' => [
-                'name' => $user->name,
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
                 'kelas' => $user->kelas,
-                'foto' => $user->foto
+                'foto'  => $user->foto
+                    ? asset('storage/' . $user->foto)
+                    : null
+            ]
+        ]);
+    }
+
+    // SCAN WAJAH
+    public function scanWajah(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Siswa tidak ditemukan'
+            ]);
+        }
+
+        $cek = Absensi::where('user_id', $user->id)
+            ->whereDate('tanggal', Carbon::today())
+            ->first();
+
+        if ($cek) {
+            return response()->json([
+                'success' => false,
+                'message' => $user->name . ' sudah absen hari ini',
+                'already_absen' => true,
+                'user'    => [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'kelas' => $user->kelas,
+                    'foto'  => $user->foto
+                        ? asset('storage/' . $user->foto)
+                        : null
+                ]
+            ]);
+        }
+
+        Absensi::create([
+            'user_id' => $user->id,
+            'tanggal' => Carbon::today(),
+            'status'  => 'hadir'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $user->name . ' berhasil absen',
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'kelas' => $user->kelas,
+                'foto'  => $user->foto
                     ? asset('storage/' . $user->foto)
                     : null
             ]

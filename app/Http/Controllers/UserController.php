@@ -101,39 +101,41 @@ class UserController extends Controller
         return view('admin.edituser', compact('user'));
     }
 
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'role' => 'required',
-        ]);
+   public function update(Request $request, User $user)
+{
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+        'role' => 'required',
+    ]);
 
-        if ($request->hasFile('foto')) {
-            // hapus foto lama (optional tapi bagus)
-            if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
-                \Storage::disk('public')->delete($user->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('foto_users', 'public');
-        }
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role,
+        'alamat' => $request->alamat,
+        'kelas' => $request->kelas,
+    ];
 
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'alamat' => $request->alamat,
-            'kelas' => $request->kelas,
-        ];
-
-        if ($request->password) {
-            $data['password'] = bcrypt($request->password);
-        }
-
-        $user->update($data);
-
-        return redirect()->route('users.index')->with('success', 'User berhasil diupdate');
+    // Update password jika diisi
+    if ($request->filled('password')) {
+        $data['password'] = bcrypt($request->password);
     }
 
+    // Update foto jika ada
+    if ($request->hasFile('foto')) {
+        if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
+            \Storage::disk('public')->delete($user->foto);
+        }
+
+        $data['foto'] = $request->file('foto')->store('foto_users', 'public');
+    }
+
+    $user->update($data);
+
+    return redirect()->route('users.index')
+        ->with('success', 'User berhasil diupdate');
+}
     public function showQr($id)
     {
         $user = User::findOrFail($id);
@@ -141,6 +143,8 @@ class UserController extends Controller
         $qr = base64_encode(
             QrCode::format('svg')
                 ->size(300)
+                ->style('round')
+                ->eye('circle')
                 ->generate($user->id . '-' . $user->name)
         );
 

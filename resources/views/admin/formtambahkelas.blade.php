@@ -30,13 +30,6 @@
         </div>
     </div>
 
-    <!-- ALERT -->
-    @if(session('success'))
-    <div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-2xl shadow-sm">
-        {{ session('success') }}
-    </div>
-
-    @endif
 
     <!-- FORM CARD -->
     <div class="max-w-3xl">

@@ -7,19 +7,6 @@
 
 <div class="space-y-6">
 
-    <!-- HEADER -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 text-white shadow-lg">
-
-        <h1 class="text-3xl font-bold">
-            Riwayat Absensi
-        </h1>
-
-        <p class="mt-2 text-blue-100">
-            Lihat seluruh data kehadiran Anda pada sistem JARENG.
-        </p>
-
-    </div>
-
     <!-- STATISTIK -->
     <div class="grid md:grid-cols-3 gap-5">
 

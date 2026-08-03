@@ -247,6 +247,17 @@
 
                                 <!-- DETAIL -->
                                 <button
+                                    type="button"
+                                    data-detail="{{ json_encode([
+                                        'name' => $user->name,
+                                        'email' => $user->email,
+                                        'role' => $user->role,
+                                        'kelas' => $user->kelas ? 'Kelas ' . $user->kelas : 'Tidak Ada Kelas',
+                                        'alamat' => $user->alamat ?? 'Alamat belum diisi',
+                                        'foto' => $user->foto ? asset('storage/' . $user->foto) : null,
+                                        'terdaftar' => $user->created_at ? $user->created_at->format('d M Y') : '-'
+                                    ]) }}"
+                                    onclick="showDetail(this)"
                                     class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-sm shadow transition">
 
                                     Detail
@@ -410,7 +421,103 @@
 
 </div>
 
+<!-- MODAL DETAIL -->
+<div id="detailModal"
+    class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+
+    <div class="bg-white w-[550px] rounded-[25px] shadow-2xl overflow-hidden">
+
+        <!-- HEADER -->
+        <div style="background: #ffffff; border-bottom: 1px solid #e2e8f0;" class="px-6 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div style="background: #eff6ff;" class="w-10 h-10 rounded-xl flex items-center justify-center text-xl">
+                    👤
+                </div>
+                <div>
+                    <h3 style="color: #1e293b; font-weight: 800; font-size: 1.25rem; margin: 0;">Detail Data User</h3>
+                    <p style="color: #64748b; margin-top: 2px;" class="text-xs">Informasi lengkap pengguna sistem</p>
+                </div>
+            </div>
+            <button onclick="closeDetail()"
+                style="background: transparent; color: #64748b; font-size: 1.25rem;"
+                class="hover:text-gray-900 font-bold transition border-none cursor-pointer p-1">
+                ✕
+            </button>
+        </div>
+
+        <!-- BODY -->
+        <div class="p-7">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6 pb-6 border-b border-gray-100">
+                <!-- FOTO -->
+                <img id="detailFoto"
+                    src=""
+                    class="w-28 h-28 rounded-2xl object-cover border-4 border-emerald-500/30 shadow-lg shrink-0">
+
+                <div class="text-center sm:text-left flex-1">
+                    <h4 id="detailNama" style="color: #1e293b;" class="text-2xl font-extrabold mb-1"></h4>
+                    <div id="detailEmail" style="color: #64748b;" class="text-sm font-medium mb-3"></div>
+                    <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                        <span id="detailRole" style="background-color: #d1fae5; color: #065f46;" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"></span>
+                        <span id="detailKelas" style="background-color: #dbeafe; color: #1e40af;" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL INFORMATION -->
+            <div class="space-y-4">
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0;" class="p-4 rounded-2xl">
+                    <div style="color: #64748b;" class="text-xs font-bold uppercase tracking-wider mb-1">Alamat Tempat Tinggal</div>
+                    <div id="detailAlamat" style="color: #1e293b;" class="text-sm font-semibold leading-relaxed"></div>
+                </div>
+
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0;" class="p-4 rounded-2xl">
+                    <div style="color: #64748b;" class="text-xs font-bold uppercase tracking-wider mb-1">Tanggal Bergabung / Terdaftar</div>
+                    <div id="detailTerdaftar" style="color: #1e293b;" class="text-sm font-semibold"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0;" class="px-6 py-4 flex justify-end">
+            <button onclick="closeDetail()"
+                style="background-color: #e2e8f0; color: #334155;"
+                class="hover:bg-gray-300 px-6 py-2.5 rounded-xl font-bold text-sm transition border-none cursor-pointer">
+                Tutup
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 <script>
+    function showDetail(el) {
+        const data = JSON.parse(el.getAttribute('data-detail'));
+        const modal = document.getElementById('detailModal');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        document.getElementById('detailNama').innerText = data.name || '-';
+        document.getElementById('detailEmail').innerText = data.email || '-';
+        document.getElementById('detailRole').innerText = 'Role: ' + (data.role || '-').toUpperCase();
+        document.getElementById('detailKelas').innerText = data.kelas || '-';
+        document.getElementById('detailAlamat').innerText = data.alamat || '-';
+        document.getElementById('detailTerdaftar').innerText = data.terdaftar || '-';
+
+        const fotoEl = document.getElementById('detailFoto');
+        if (data.foto) {
+            fotoEl.src = data.foto;
+        } else {
+            fotoEl.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.name) + "&background=10b981&color=fff&size=150";
+        }
+    }
+
+    function closeDetail() {
+        const modal = document.getElementById('detailModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
     async function showQr(id) {
 
@@ -464,7 +571,7 @@
 
             console.log(error);
 
-            alert('QR gagal dimuat');
+            showNotificationModal('Gagal', 'Kartu QR gagal dimuat dari server.', 'error');
 
         }
 

@@ -9,9 +9,19 @@ use App\Models\User;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\SiswaDashboardController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\FaceRegistrationController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\CatatanController;
 
 Route::get('/', function () {
-    return view('auth/login');
+    if (auth()->check()) {
+        return match (auth()->user()->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'siswa' => redirect()->route('siswa.dashboard'),
+            default => redirect()->route('login'),
+        };
+    }
+    return view('auth.login');
 });
 
 //CRUD
@@ -34,15 +44,10 @@ Route::middleware(['auth'])->group(function () {
     ->name('admin.dashboard')
     ->middleware('auth');
 
-    Route::get('/siswa/dashboard', function () {
-        return view('siswa.dashboard');
-    })->name('siswa.dashboard');
+    Route::get('/siswa/dashboard', [SiswaDashboardController::class, 'index'])
+    ->name('siswa.dashboard');
 
 });
-
-Route::get('/siswa/dashboard',
-    [SiswaDashboardController::class, 'index']
-)->name('siswa.dashboard');
 
 Route::middleware(['auth'])->group(function () {
 
@@ -54,27 +59,67 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/siswa/riwayat', [SiswaController::class, 'riwayat'])
         ->name('siswa.riwayat');
+
+    Route::get('/siswa/rekap', [SiswaDashboardController::class, 'rekap'])
+        ->name('siswa.rekap');
+
+    Route::get('/siswa/rekap/pdf', [SiswaDashboardController::class, 'downloadRekapPdf'])
+        ->name('siswa.rekap.pdf');
 });
 
 // NAVIGASI 
 Route::middleware('auth')->group(function () {
 
     Route::get('/scan-qr', fn() => view('admin.scan-qr'))->name('scan.qr');
-    Route::get('/scan-wajah', fn() => view('admin.scan-wajah'))->name('scan.wajah');
+    Route::get('/scan-wajah', function () {
+        // Hitung statistik kelas kecil (1, 2, 3)
+        $totalKecil = \App\Models\User::where('role', 'siswa')->whereIn('kelas', ['1', '2', '3'])->count();
+        $sudahKecil = \App\Models\User::where('role', 'siswa')->whereIn('kelas', ['1', '2', '3'])
+            ->whereHas('absensis', function($q) {
+                $q->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'hadir');
+            })->count();
+        $belumKecil = $totalKecil - $sudahKecil;
+
+        // Hitung statistik kelas besar (4, 5, 6)
+        $totalBesar = \App\Models\User::where('role', 'siswa')->whereIn('kelas', ['4', '5', '6'])->count();
+        $sudahBesar = \App\Models\User::where('role', 'siswa')->whereIn('kelas', ['4', '5', '6'])
+            ->whereHas('absensis', function($q) {
+                $q->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'hadir');
+            })->count();
+        $belumBesar = $totalBesar - $sudahBesar;
+
+        return view('admin.scan-wajah', compact(
+            'totalKecil', 'sudahKecil', 'belumKecil',
+            'totalBesar', 'sudahBesar', 'belumBesar'
+        ));
+    })->name('scan.wajah');
     Route::get('/absenmanual', fn() => view('admin.absenmanual'))->name('absenmanual');
     Route::get('/master-data', [UserController::class, 'index'])->name('master.data');
-    Route::get('/laporan', fn() => view('admin.laporan'))->name('laporan');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+    Route::get('/laporan/pdf', [LaporanController::class, 'downloadPdf'])->name('laporan.pdf');
+    Route::post('/catatan/simpan', [CatatanController::class, 'simpan'])->name('catatan.simpan');
+    Route::post('/catatan/hapus', [CatatanController::class, 'hapus'])->name('catatan.hapus');
     Route::get('/kelas', [GroupController::class, 'index'])->name('kelas');
     Route::get('/user', [UserController::class, 'userPage'])->name('user.page');
 
+    // Face Registration
+    Route::get('/admin/face-registration', [FaceRegistrationController::class, 'index'])->name('face-registration.index');
+    Route::post('/admin/face-registration/store', [FaceRegistrationController::class, 'store'])->name('face-registration.store');
+    Route::delete('/admin/face-registration/{id}', [FaceRegistrationController::class, 'destroy'])->name('face-registration.destroy');
+
+    // QR Process — harus login
+    Route::post('/scan-qr/process', [AbsensiController::class, 'scanQr'])
+        ->name('scan.qr.process');
+
+    // Face Recognition process
+    Route::post('/absensi/wajah', [AbsensiController::class, 'scanWajah'])
+        ->name('absensi.wajah');
+
 });
 
-// QR 
+// QR Code display (boleh publik untuk generate QR)
 Route::get('/user/qr/{id}', [UserController::class, 'showQr'])
     ->name('user.qr');
-
-Route::post('/scan-qr/process', [AbsensiController::class, 'scanQr'])
-    ->name('scan.qr.process');
 
 Route::get('/form-tambah-kelas', function () {
     return view('admin.formtambahkelas');

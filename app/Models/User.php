@@ -46,5 +46,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Absensi::class);
     }
-  
+
+    public function faceRegistration()
+    {
+        return $this->hasOne(FaceRegistration::class);
+    }
 }

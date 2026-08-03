@@ -108,7 +108,7 @@
                                 <!-- DELETE -->
                                 <form action="#"
                                     method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus kelas ini?')">
+                                    onsubmit="event.preventDefault(); const form = this; showConfirmModal('Hapus Kelas', 'Apakah Anda yakin ingin menghapus kelas ini?', () => { form.submit(); });">
                                     @csrf
                                     @method('DELETE')
                                     <button

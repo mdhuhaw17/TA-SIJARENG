@@ -9,7 +9,7 @@
 /* CARD */
 .dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 15px;
     margin-bottom: 20px;
 }
@@ -57,6 +57,7 @@
     gap: 20px;
     margin-top: 20px;
     align-items: stretch;
+    min-width: 0;
 }
 
 .map-box {
@@ -85,19 +86,22 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 80px;
+    min-height: 90px;
+    padding: 12px;
     background: #f9fafb;
-    border-radius: 10px;
-    font-weight: bold;
+    border-radius: 12px;
     text-decoration: none;
-    color: black;
-    transition: 0.2s;
+    color: #1e293b;
+    transition: all 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    gap: 8px;
+    text-align: center;
 }
 
-.feature-box:hover {
-    background: #e0f2fe;
-    transform: scale(1.05);
+.feature-box span{
+    font-size: clamp(11px, 1vw, 14px);
+    font-weight: 600;
+    line-height: 1.3;
 }
 
 /* GREETING CONTAINER */
@@ -202,7 +206,7 @@
     </div>
 
     <div class="card-box card-green">
-        HADIR<br><br>
+        SUDAH ABSEN<br><br>
         <span class="text-2xl">{{ $totalHadir }}</span>
     </div>
 
@@ -217,7 +221,7 @@
     </div>
 
     <div class="card-box card-orange">
-        PERSENTASE KEHADIRAN<br><br>
+        PERSENTASE KEHADIRAN HARI INI<br><br>
         <span class="text-2xl">{{ $persentase }}%</span>
     </div>
 
@@ -384,20 +388,18 @@
     </script>
 
     <div class="list-box">
-    <b>Menu Navigasi</b>
-
-        <div class="grid grid-cols-3 gap-3 mt-3">
+    <b>Menu Navigasi</b>        <div class="grid grid-cols-3 gap-3 mt-3">
 
             <a href="{{ route('scan.qr') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"></path>
                     <path d="M14 14h3v3h-3z"></path>
                 </svg>
-                <br>Scan QR
+                <span>Scan QR</span>
             </a>
 
             <a href="{{ route('scan.wajah') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg"class="w-7 h-7"fill="none"stroke="#10b981"stroke-width="2"viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M7 3H5a2 2 0 0 0-2 2v2"></path>
                     <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                     <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
@@ -405,50 +407,62 @@
                     <circle cx="12" cy="10" r="3"></circle>
                     <path d="M8 17c1.5-2 6.5-2 8 0"></path>
                 </svg>
-                <br>Scan Wajah
+                <span>Scan Wajah</span>
             </a>
 
             <a href="{{ route('absenmanual') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M9 11l3 3L22 4"></path>
                     <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
-                <br>Manual
+                <span>Manual</span>
             </a>
 
             <a href="{{ route('master.data') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 6h18M3 12h18M3 18h18"></path>
                 </svg>
-                <br>Master Data
+                <span>Master Data</span>
             </a>
 
             <a href="{{ route('laporan') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 3v18h18"></path>
                     <path d="M7 14l4-4 4 4 4-8"></path>
                 </svg>
-                <br>Laporan
+                <span>Laporan</span>
             </a>
 
             <a href="{{ route('kelas') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" stroke="#06b6d4" stroke-width="2" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#06b6d4" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 10L12 4L21 10"></path>
                     <path d="M5 10V20H19V10"></path>
                     <path d="M9 20V14H15V20"></path>
                 </svg>
-                <br>Kelas
+                <span>Kelas</span>
             </a>
 
             <a href="{{ route('user.page') }}" class="feature-box">
-                <svg xmlns="http://www.w3.org/2000/svg"class="w-7 h-7"fill="none"stroke="#8b5cf6"stroke-width="2"viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#8b5cf6" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="12" cy="8" r="4"></circle>
                     <path d="M4 20c1.5-4 14.5-4 16 0"></path>
                 </svg>
-                <br>User
+                <span>User</span>
             </a>
 
-        </div>
+            <a href="{{ route('face-registration.index') }}" class="feature-box">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 28px; height: 28px; flex-shrink: 0;" fill="none" stroke="#db2777" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M7 3H5a2 2 0 0 0-2 2v2"></path>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                    <path d="M17 21h2a2 2 0 0 0 2-2v-2"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                    <path d="M8 17c1.5-2 6.5-2 8 0"></path>
+                </svg>
+                <span>Registrasi Wajah</span>
+            </a>
+
+        </div></div>
     </div>
 
 </div>

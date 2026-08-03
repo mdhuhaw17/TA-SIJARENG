@@ -52,7 +52,6 @@
                     placeholder="Cari nama, email, alamat, atau kelas..."
                     class="w-full border border-gray-300 rounded-xl px-4 py-3 pr-11 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <span class="absolute right-4 top-3 text-gray-400">
-                    🔍
                 </span>
             </div>
 
@@ -217,7 +216,7 @@
                                 <!-- DELETE -->
                                 <form action="{{ route('users.destroy', $user->id) }}"
                                     method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus user ini?')">
+                                    onsubmit="event.preventDefault(); const form = this; showConfirmModal('Hapus User', 'Apakah Anda yakin ingin menghapus user ini?', () => { form.submit(); });">
                                     @csrf
                                     @method('DELETE')
                                     <button
